@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: org.tensorflow:tensorflow-lite-task-text:0.2.0@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/a85001445f8211d85f461ae75d88bd97/transformed/tensorflow-lite-task-text-0.2.0/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a85001445f8211d85f461ae75d88bd97/transformed/tensorflow-lite-task-text-0.2.0/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a85001445f8211d85f461ae75d88bd97/transformed/tensorflow-lite-task-text-0.2.0/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/b71351b49c7992ebe9229ceb970db2af/transformed/tensorflow-lite-task-text-0.2.0/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/e22bc1bd4f23b8aa2d841df840cf3dbe/transformed/tensorflow-lite-task-text-0.2.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/e22bc1bd4f23b8aa2d841df840cf3dbe/transformed/tensorflow-lite-task-text-0.2.0/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/e22bc1bd4f23b8aa2d841df840cf3dbe/transformed/tensorflow-lite-task-text-0.2.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

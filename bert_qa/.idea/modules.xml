@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/TFLite_BERT_Q&amp;A_Demo_App.iml" filepath="$PROJECT_DIR$/.idea/modules/TFLite_BERT_Q&amp;A_Demo_App.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/TFLite_BERT_Q&amp;A_Demo_App.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/TFLite_BERT_Q&amp;A_Demo_App.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib_interpreter/TFLite_BERT_Q&amp;A_Demo_App.lib_interpreter.iml" filepath="$PROJECT_DIR$/.idea/modules/lib_interpreter/TFLite_BERT_Q&amp;A_Demo_App.lib_interpreter.iml" />
     </modules>
   </component>
 </project>

@@ -157,7 +157,7 @@ public class QaActivity extends AppCompatActivity {
     // END - TFLite Task Library path
 
     // BEGIN - TFLite Interpreter path
-//    qaClient = new QaClient(this);
+//    qaClient = new QaClient(this, MODEL_PATH);
     // END - TFLite Interpreter path
   }
 

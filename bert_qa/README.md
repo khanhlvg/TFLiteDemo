@@ -22,7 +22,7 @@ There are TWO ways to integrate a TFLite BERT Question & Answer model implemente
 ```
     
 2. Using the TFLite [Interpreter](https://www.tensorflow.org/lite/guide/inference) directly. This allows full customization of the preprocessing/post-processing logic, and can be used if your BERT Question & Answer model requires custom pre/post-processing logic that isn't supported by TFLite Task Library.
-    * All code used to integrate the TFLite model using the Interpreter directly is inside the `tfliteinterpreter` package.
+    * All code used to integrate the TFLite model using the Interpreter directly is inside the `lib_interpreter` module.
     * This execution path is disabled in the app. You can enable it by commenting out the code of the TFLite Task Library path mentioned above, then enable that of the interpreter path inside these comment tags.
 ```
 // BEGIN - TFLite Interpreter path
