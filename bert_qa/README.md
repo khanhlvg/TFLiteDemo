@@ -13,21 +13,22 @@ These instructions walk you through running the demo on an Android device.
 
 There are TWO ways to integrate a TFLite BERT Question & Answer model implemented in this Android sample:
 1. Using the TFLite Task Library's [BertQuestionAnswerer API](https://www.tensorflow.org/lite/inference_with_metadata/task_library/bert_question_answerer). This is the easiest way to integrate TFLite models to mobile apps in just a few lines of code.
-    * This is the **default** excecution path implemented in the app. If you run the app as-is, the TFLite Task Library will be used to run the TFLite BERT Question & Answer model.
-    * The specific code that use the TFLite Task Library is between these comment tags in the sample app.
+    * This is the **default** execution path implemented in the app. If you run the app as-is, the TFLite Task Library will be used to run the TFLite BERT Question & Answer model.
+    * The specific code that use the TFLite Task Library can be found between this `if` statement in the sample app.
 ```
-// BEGIN - TFLite Task Library path
-...
-// END - TFLite Task Library path
+if (USE_MODE == Mode.TASK_LIBRARY) {
+  // ...
+}
 ```
     
 2. Using the TFLite [Interpreter](https://www.tensorflow.org/lite/guide/inference) directly. This allows full customization of the preprocessing/post-processing logic, and can be used if your BERT Question & Answer model requires custom pre/post-processing logic that isn't supported by TFLite Task Library.
     * All code used to integrate the TFLite model using the Interpreter directly is inside the `lib_interpreter` module.
-    * This execution path is disabled in the app. You can enable it by commenting out the code of the TFLite Task Library path mentioned above, then enable that of the interpreter path inside these comment tags.
+    * This execution path is disabled in the app. You can enable it by changing the constant USE_MODE in `QaActivity.java` to `Mode USE_MODE = Mode.INTERPRETER`;
+    * The specific code that use the TFLite Task Library can be found between this `if` statement in the sample app.
 ```
-// BEGIN - TFLite Interpreter path
-...
-// END - TFLite Interpreter path
+if (USE_MODE == Mode.INTERPRETER) {
+  // ...
+}
 ```
 
 

@@ -39,14 +39,23 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
+import org.tensorflow.lite.examples.bertqa.lib_interpreter.ml.QaClient;
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer;
 import org.tensorflow.lite.task.text.qa.QaAnswer;
 
 /** Activity for doing Q&A on a specific dataset */
 public class QaActivity extends AppCompatActivity {
+
+  enum Mode {
+    TASK_LIBRARY, // Use TFLite Task Library to integrate the TFLite model
+    INTERPRETER // Use TFLite Interpreter directly to integrate the TFLite model
+  }
+  private static final Mode USE_MODE = Mode.TASK_LIBRARY;
 
   private static final String DATASET_POSITION_KEY = "DATASET_POSITION";
   private static final String TAG = "QaActivity";
@@ -61,10 +70,10 @@ public class QaActivity extends AppCompatActivity {
   private String content;
   private Handler handler;
 
+  // TFLite Task Library's question answerer engine
   private BertQuestionAnswerer questionAnswerer;
-  // BEGIN - TFLite Interpreter path
-//  private QaClient qaClient;
-  // END - TFLite Interpreter path
+  // TFLite Interpreter's question answerer engine
+  private QaClient qaClient;
 
   public static Intent newInstance(Context context, int datasetPosition) {
     Intent intent = new Intent(context, QaActivity.class);
@@ -96,7 +105,7 @@ public class QaActivity extends AppCompatActivity {
     RecyclerView questionSuggestionsView = findViewById(R.id.suggestion_list);
     QuestionAdapter adapter =
         new QuestionAdapter(this, datasetClient.getQuestions(datasetPosition));
-    adapter.setOnQuestionSelectListener(question -> answerQuestion(question));
+    adapter.setOnQuestionSelectListener(this::answerQuestion);
     questionSuggestionsView.setAdapter(adapter);
     LinearLayoutManager layoutManager =
         new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -147,30 +156,26 @@ public class QaActivity extends AppCompatActivity {
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
 
-    // BEGIN - TFLite Task Library path
-    // Setup a BertQuestionAnswerer to do Q&A using the TFLite model
-    try {
-      questionAnswerer = BertQuestionAnswerer.createFromFile(this, MODEL_PATH);
-    } catch (IOException e) {
-      Log.e(TAG, e.getMessage());
+    if (USE_MODE == Mode.TASK_LIBRARY) {
+      // Setup a TFLite Task Library's BertQuestionAnswerer to do Q&A using the TFLite model
+      try {
+        questionAnswerer = BertQuestionAnswerer.createFromFile(this, MODEL_PATH);
+      } catch (IOException e) {
+        Log.e(TAG, e.getMessage());
+      }
+    } else if (USE_MODE == Mode.INTERPRETER) {
+      // Setup a QaClient object that use TFLite Interpreter directly to run the TFLite model
+      qaClient = new QaClient(this, MODEL_PATH);
     }
-    // END - TFLite Task Library path
-
-    // BEGIN - TFLite Interpreter path
-//    qaClient = new QaClient(this, MODEL_PATH);
-    // END - TFLite Interpreter path
   }
 
   @Override
   protected void onStart() {
     Log.v(TAG, "onStart");
     super.onStart();
-    handler.post(
-        () -> {
-          // BEGIN - TFLite Interpreter path
-//          qaClient.loadModel();
-          // END - TFLite Interpreter path
-        });
+    if (USE_MODE == Mode.INTERPRETER) {
+      handler.post(() -> qaClient.loadModel());
+    }
 
     textToSpeech =
         new TextToSpeech(
@@ -188,9 +193,10 @@ public class QaActivity extends AppCompatActivity {
   protected void onStop() {
     Log.v(TAG, "onStop");
     super.onStop();
-    // BEGIN - TFLite Interpreter path
-//    handler.post(() -> qaClient.unload());
-    // END - TFLite Interpreter path
+
+    if (USE_MODE == Mode.INTERPRETER) {
+      handler.post(() -> qaClient.unload());
+    }
 
 
     if (textToSpeech != null) {
@@ -239,13 +245,23 @@ public class QaActivity extends AppCompatActivity {
     handler.post(
         () -> {
           long beforeTime = System.currentTimeMillis();
-          // BEGIN - TFLite Interpreter path
-//          final List<QaAnswer> answers = qaClient.predict(questionToAsk, content);
-          // END - TFLite Interpreter path
 
-          // BEGIN - TFLite Task Library path
-          List<QaAnswer> answers = questionAnswerer.answer(content, questionToAsk);
-          // END - TFLite Task Library path
+          List<QaAnswer> answers;
+
+          if (USE_MODE == Mode.TASK_LIBRARY) {
+            // Run inference using the TFLite Task Library
+            answers = questionAnswerer.answer(content, questionToAsk);
+          } else if (USE_MODE == Mode.INTERPRETER) {
+            answers = qaClient
+                // Run inference using the TFLite Interpreter
+                .predict(questionToAsk, content).stream()
+                // Then convert the output to the format of TFLite Task Library to display on UI
+                .map(this::convertOutputToTaskLibraryFormat)
+                .collect(Collectors.toList());
+          } else {
+            answers = Collections.emptyList();
+            Log.e(TAG, "Unsupported mode.");
+          }
 
           long afterTime = System.currentTimeMillis();
           double totalSeconds = (afterTime - beforeTime) / 1000.0;
@@ -269,10 +285,15 @@ public class QaActivity extends AppCompatActivity {
         });
   }
 
+  private QaAnswer convertOutputToTaskLibraryFormat(
+      org.tensorflow.lite.examples.bertqa.lib_interpreter.ml.QaAnswer qaAnswer) {
+    return new QaAnswer(qaAnswer.text, qaAnswer.pos.start, qaAnswer.pos.end, qaAnswer.pos.logit);
+  }
+
   private void presentAnswer(QaAnswer answer) {
     // Highlight answer.
     Spannable spanText = new SpannableString(content);
-    int offset = content.indexOf(answer.text, 0);
+    int offset = content.indexOf(answer.text);
     if (offset >= 0) {
       spanText.setSpan(
           new BackgroundColorSpan(getColor(R.color.tfe_qa_color_highlight)),
